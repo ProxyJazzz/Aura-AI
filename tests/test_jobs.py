@@ -133,14 +133,100 @@ def test_job_flow_endpoints():
     assert summary["min_experience_years"] == 6.0
     assert summary["soft_skills_count"] == 2  # Problem-solving, Collaboration
 
-def test_invalid_file_upload():
+def test_txt_file_upload():
+    # TXT is now supported in Phase 3
+    txt_content = """
+    Role: Backend Developer
+    Experience: 3 years of experience.
+    Requirements:
+    Python, SQL
+    """
     response = client.post(
         "/api/v1/jobs/upload",
-        files={"file": ("test.txt", b"plain text", "text/plain")}
+        files={"file": ("job.txt", txt_content.encode("utf-8"), "text/plain")}
+    )
+    assert response.status_code == 201
+    job_data = response.json()
+    assert job_data["title"] == "Backend Developer"
+    assert job_data["min_experience"] == 3.0
+    assert "Python" in job_data["required_skills"]
+
+
+def test_invalid_file_upload():
+    # Unsupported formats should still fail
+    response = client.post(
+        "/api/v1/jobs/upload",
+        files={"file": ("test.pdf", b"pdf content", "application/pdf")}
     )
     assert response.status_code == 400
     assert "Unsupported file format" in response.json()["detail"]
 
+
+def test_job_phase3_new_endpoints():
+    JobRepository.create_tables()
+    with get_db_connection() as conn:
+        conn.execute("DELETE FROM jobs;")
+
+    # Upload a job description to populate database
+    paragraphs = [
+        "Title: Lead Python Developer",
+        "Domain: Fintech",
+        "Experience: 8 years required.",
+        "Key requirements:",
+        "Python, SQL, AWS",
+        "Preferred qualifications:",
+        "FastAPI, Docker",
+        "Soft skills: Leadership"
+    ]
+    docx_bytes = create_mock_docx(paragraphs)
+    
+    # 1. First upload
+    response = client.post(
+        "/api/v1/jobs/upload",
+        files={"file": ("job_desc_p3.docx", docx_bytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")}
+    )
+    assert response.status_code == 201
+    
+    # 2. Get active hiring profile
+    response = client.get("/api/v1/jobs/profile")
+    assert response.status_code == 200
+    profile = response.json()
+    assert profile["metadata"]["title"] == "Lead Python Developer"
+    assert "Python" in profile["requirements"]["required_skills"]
+    assert "Summary" in profile["sections"]
+
+    # 3. Get history
+    response = client.get("/api/v1/jobs/history")
+    assert response.status_code == 200
+    history = response.json()
+    assert len(history) >= 1
+    assert history[0]["filename"] == "job_desc_p3.docx"
+
+    # 4. Get status
+    response = client.get("/api/v1/jobs/status")
+    assert response.status_code == 200
+    status_data = response.json()
+    assert status_data["has_active_job"] is True
+    assert status_data["active_job_title"] == "Lead Python Developer"
+
+    # 5. Duplicate upload check
+    response = client.post(
+        "/api/v1/jobs/upload",
+        files={"file": ("job_desc_p3.docx", docx_bytes, "application/vnd.openxmlformats-officedocument.wordprocessingml.document")}
+    )
+    assert response.status_code == 400
+    assert "already been uploaded" in response.json()["detail"]
+
+    # 6. Delete/deactivate current active job
+    response = client.delete("/api/v1/jobs/current")
+    assert response.status_code == 200
+    
+    # Status should show no active job
+    response = client.get("/api/v1/jobs/status")
+    assert response.json()["has_active_job"] is False
+
+
 # Import helper inside tests to avoid circular import issues
 from app.shared.database import get_db_connection
+
 
