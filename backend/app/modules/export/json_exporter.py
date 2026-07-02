@@ -23,7 +23,7 @@ from __future__ import annotations
 
 import json
 from datetime import datetime, timezone
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from app.modules.export.utils import compute_checksum
 
@@ -35,6 +35,7 @@ class JSONExporter:
     def export(
         candidates: List[Dict[str, Any]],
         profile: str,
+        generated_at: Optional[str] = None,
     ) -> tuple[str, str]:
         """
         Build the complete JSON export string.
@@ -45,6 +46,8 @@ class JSONExporter:
             Validated, rank-annotated candidate dicts.
         profile:
             The weight profile name used to produce these rankings.
+        generated_at:
+            Optional timestamp string. If not provided, current UTC time is used.
 
         Returns
         -------
@@ -52,7 +55,7 @@ class JSONExporter:
             (json_content, sha256_checksum)
         """
         payload: Dict[str, Any] = {
-            "generated_at": datetime.now(timezone.utc).isoformat(),
+            "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
             "profile": profile,
             "candidate_count": len(candidates),
             "candidates": [

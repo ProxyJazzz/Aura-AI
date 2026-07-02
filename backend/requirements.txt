@@ -18,6 +18,6 @@ loguru==0.7.3
 python-dotenv==1.1.0
 
 # ── AI/ML (Sprint 2+) ───────────────────────────────────
-# sentence-transformers==3.4.1
-# scikit-learn==1.6.1
-# faiss-cpu==1.11.0
+sentence-transformers==3.4.1
+scikit-learn==1.6.1
+PyYAML==6.0.3

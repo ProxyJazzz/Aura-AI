@@ -274,8 +274,9 @@ class TestJSONExporter:
 
     def test_json_checksum_deterministic(self):
         validated = self._validated(3)
-        _, cs1 = JSONExporter.export(validated, "default")
-        _, cs2 = JSONExporter.export(validated, "default")
+        t = "2026-07-02T12:00:00Z"
+        _, cs1 = JSONExporter.export(validated, "default", generated_at=t)
+        _, cs2 = JSONExporter.export(validated, "default", generated_at=t)
         assert cs1 == cs2
 
 

@@ -161,12 +161,30 @@ class SubmissionValidator:
                 + ("..." if len(unknown) > 10 else "")
             )
 
-        # ── 6. Build enriched list and apply deterministic sort ───────────────
+        # ── 6. Deterministic sorting on raw profiles ──────────────────────────
+        sorted_cids = sorted(
+            profiles.keys(),
+            key=lambda cid: (
+                -float(profiles[cid].get("overall_score", 0.0)),
+                -float(profiles[cid].get("semantic_score", 0.0)),
+                -float(profiles[cid].get("skill_score", 0.0)),
+                -float(profiles[cid].get("experience_score", 0.0)),
+                cid,
+            )
+        )
+
+        # ── 7. Trim to limit ──────────────────────────────────────────────────
+        effective_limit = resolve_limit(limit, default=len(sorted_cids))
+        top_cids = sorted_cids[:effective_limit]
+
+        # ── 8. Enrich and rank only the selected top candidates ────────────────
         flat: List[Dict[str, Any]] = []
-        for cid, profile in profiles.items():
+        for rank, cid in enumerate(top_cids, start=1):
+            profile = profiles[cid]
             details = candidate_details_map.get(cid, {})
             flat.append(
                 {
+                    "rank": rank,
                     "candidate_id": cid,
                     "name": details.get("anonymized_name", "Anonymized"),
                     "title": details.get("current_title", "Professional"),
@@ -186,19 +204,9 @@ class SubmissionValidator:
                 }
             )
 
-        sorted_list = deterministic_sort(flat)
-
-        # ── 7. Apply rank numbers ─────────────────────────────────────────────
-        for rank, record in enumerate(sorted_list, start=1):
-            record["rank"] = rank
-
-        # ── 8. Trim to limit ──────────────────────────────────────────────────
-        effective_limit = resolve_limit(limit, default=len(sorted_list))
-        result = sorted_list[:effective_limit]
-
         logger.info(
-            "Validation passed: {total} profiles validated, {exported} selected for export.",
-            total=len(sorted_list),
-            exported=len(result),
+            "Validation passed: {total} profiles sorted, {exported} selected for export.",
+            total=len(sorted_cids),
+            exported=len(flat),
         )
-        return result
+        return flat
