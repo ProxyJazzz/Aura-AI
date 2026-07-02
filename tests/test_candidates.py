@@ -186,6 +186,15 @@ def test_get_dataset_summary():
     assert data["valid_candidates"] == 100000
     assert data["honeypot_candidates"] == 60
 
+def test_get_candidates_statistics():
+    response = client.get("/api/v1/candidates/statistics")
+    assert response.status_code == 200
+    data = response.json()
+    assert "total_candidates" in data
+    assert data["total_candidates"] == 100000
+    assert data["valid_candidates"] == 100000
+    assert data["honeypot_candidates"] == 60
+
 def test_get_candidates_endpoint():
     # Test basic list
     response = client.get("/api/v1/candidates?limit=5")

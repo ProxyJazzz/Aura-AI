@@ -320,7 +320,8 @@ class JobService:
         soft_skills_map = {
             "Communication": [r"\bcommunication\b", r"\bwrit\w*\b", r"\bpresentation\b"],
             "Mentorship": [r"\bmentor\w*\b"],
-            "Collaboration": [r"\bcollaborat\w*\b", r"\bteam\w*\b"],
+            "Collaboration": [r"\bcollaborat\w*\b"],
+            "Teamwork": [r"\bteam\w*\b"],
             "Leadership": [r"\blead\w*\b", r"\bmanag\w*\b"],
             "Problem-Solving": [r"\bproblem[- ]solving\b", r"\bsolv\w*\s+problem\w*\b"]
         }

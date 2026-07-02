@@ -71,6 +71,30 @@ async def get_candidates(
         )
 
 @candidates_router.get(
+    "/statistics",
+    response_model=DatasetSummaryResponse,
+    summary="Get candidate dataset statistics",
+    description="Returns global analytics, distributions, and summary statistics computed over the candidates."
+)
+async def get_candidates_statistics() -> DatasetSummaryResponse:
+    """Get candidate dataset statistics."""
+    try:
+        stats = CandidateRepository.get_statistics()
+        if not stats:
+            logger.warning("Dataset statistics not precalculated in cache. Calculating on-the-fly...")
+            stats = CandidateService.calculate_global_statistics()
+            CandidateRepository.save_statistics(stats)
+            
+        return DatasetSummaryResponse(**stats)
+    except Exception as e:
+        logger.error("Error retrieving candidate statistics: {e}", e=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Error compiling statistics: {str(e)}"
+        )
+
+
+@candidates_router.get(
     "/{candidate_id}",
     response_model=CandidateDetailResponse,
     summary="Retrieve candidate details",
