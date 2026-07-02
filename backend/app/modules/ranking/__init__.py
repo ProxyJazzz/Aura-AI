@@ -1,1 +1,1 @@
-# Ranking module — Sprint 2
+# Ranking module package

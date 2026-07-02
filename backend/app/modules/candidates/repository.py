@@ -251,3 +251,15 @@ class CandidateRepository:
             if row:
                 return json.loads(row[0])
             return None
+
+    @staticmethod
+    def get_candidates_by_ids(candidate_ids: List[str]) -> List[Dict[str, Any]]:
+        """Retrieve details for a list of candidate IDs in a single query."""
+        if not candidate_ids:
+            return []
+        placeholders = ",".join("?" for _ in candidate_ids)
+        query = f"SELECT * FROM candidates WHERE candidate_id IN ({placeholders})"
+        with get_db_connection() as conn:
+            cursor = conn.cursor()
+            cursor.execute(query, candidate_ids)
+            return [dict(row) for row in cursor.fetchall()]

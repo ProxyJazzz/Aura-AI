@@ -22,6 +22,8 @@ from app.shared.middleware import RequestLoggingMiddleware
 from app.modules.health.api import router as health_router
 from app.modules.candidates import candidates_router, dataset_router
 from app.modules.jobs import jobs_router
+from app.modules.semantic import semantic_router
+from app.modules.features import features_router
 
 
 @asynccontextmanager
@@ -73,8 +75,12 @@ def create_app() -> FastAPI:
     application.include_router(candidates_router, prefix=settings.API_V1_PREFIX)
     application.include_router(dataset_router, prefix=settings.API_V1_PREFIX)
     application.include_router(jobs_router, prefix=settings.API_V1_PREFIX)
+    application.include_router(semantic_router, prefix=settings.API_V1_PREFIX)
+    application.include_router(features_router, prefix=settings.API_V1_PREFIX)
 
     return application
+
+
 
 
 

@@ -1,0 +1,9 @@
+profiles:
+  generic:
+    semantic: 25.0
+    skills: 20.0
+    experience: 15.0
+    education: 10.0
+    behavior: 10.0
+    certification: 10.0
+    language: 10.0

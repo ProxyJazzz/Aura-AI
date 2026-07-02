@@ -2,7 +2,7 @@ import io
 import re
 import zipfile
 import xml.etree.ElementTree as ET
-from typing import Dict, Any, List, Tuple
+from typing import Dict, Any, List, Tuple, Optional
 from loguru import logger
 
 from app.modules.jobs.schema import JobModel, Seniority, EmploymentType
@@ -342,3 +342,9 @@ class JobService:
             employment_type=employment_type,
             soft_skills=sorted(list(soft_skills))
         )
+
+    @classmethod
+    def get_active_job(cls) -> Optional[Dict[str, Any]]:
+        """Retrieve the currently active job description."""
+        from app.modules.jobs.repository import JobRepository
+        return JobRepository.get_active_job()

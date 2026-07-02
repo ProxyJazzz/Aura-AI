@@ -388,3 +388,14 @@ class CandidateService:
                 "avg_profile_completeness": round(float(avg_completeness or 0.0), 2),
                 "avg_recruiter_response_rate": round(float(avg_response or 0.0), 4)
             }
+
+    @classmethod
+    def get_valid_candidates(cls) -> List[Dict[str, Any]]:
+        """Retrieve all valid candidates from the repository."""
+        candidates, _ = CandidateRepository.get_candidates(is_valid=True, limit=100000)
+        return candidates
+
+    @classmethod
+    def get_candidates_by_ids(cls, candidate_ids: List[str]) -> List[Dict[str, Any]]:
+        """Retrieve details for a list of candidate IDs."""
+        return CandidateRepository.get_candidates_by_ids(candidate_ids)
