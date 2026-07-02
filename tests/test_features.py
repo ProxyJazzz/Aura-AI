@@ -254,3 +254,96 @@ def test_features_rest_endpoints():
             
     # Clean up test cache files
     client.delete("/api/v1/features/cache")
+
+
+def test_feature_repository_direct():
+    """Verify FeatureRepository database operations (save, retrieve, clear)."""
+    from app.modules.features.repository import FeatureRepository
+    FeatureRepository.create_tables()
+    FeatureRepository.clear_feature_profiles()
+
+    profile = {
+        "candidate_id": "CAND_DB_TEST",
+        "semantic_score": 80.0,
+        "skill_score": 90.0,
+        "experience_score": 85.0,
+        "education_score": 75.0,
+        "certification_score": 50.0,
+        "language_score": 100.0,
+        "behavior_score": 90.0,
+        "feature_vector": [80.0, 90.0, 85.0, 75.0, 50.0, 100.0, 90.0],
+        "metadata": {"test": True}
+    }
+
+    # Save
+    FeatureRepository.save_feature_profile(profile)
+
+    # Retrieve
+    retrieved = FeatureRepository.get_feature_profile("CAND_DB_TEST")
+    assert retrieved is not None
+    assert retrieved["semantic_score"] == 80.0
+    assert retrieved["metadata"]["test"] is True
+
+    # Get all
+    all_profiles = FeatureRepository.get_all_feature_profiles()
+    assert "CAND_DB_TEST" in all_profiles
+
+    # Clear
+    FeatureRepository.clear_feature_profiles()
+    assert FeatureRepository.get_feature_profile("CAND_DB_TEST") is None
+
+
+def test_feature_profile_generator_direct():
+    """Verify FeatureProfileGenerator constructs scorecards correctly."""
+    from app.modules.features.feature_profile import FeatureProfileGenerator
+    profile = FeatureProfileGenerator.construct_profile(
+        candidate_id="CAND_PGEN",
+        semantic_score=95.123,
+        skill_score=88.55,
+        experience_score=75.0,
+        education_score=80.0,
+        certification_score=40.0,
+        language_score=90.0,
+        behavior_score=85.0,
+        metadata={"reason": "good"}
+    )
+    assert profile["candidate_id"] == "CAND_PGEN"
+    assert profile["semantic_score"] == 95.12
+    assert profile["feature_vector"] == [95.12, 88.55, 75.0, 80.0, 40.0, 90.0, 85.0]
+
+
+def test_feature_cache_direct():
+    """Verify FeatureCache loads, saves, and clears scorecard matrices."""
+    from app.modules.features.cache import FeatureCache
+    FeatureCache.clear()
+    
+    profile = {
+        "candidate_id": "CAND_CACHE_DIRECT",
+        "semantic_score": 85.0,
+        "skill_score": 90.0,
+        "experience_score": 80.0,
+        "education_score": 75.0,
+        "certification_score": 60.0,
+        "language_score": 90.0,
+        "behavior_score": 95.0,
+        "feature_vector": [85.0, 90.0, 80.0, 75.0, 60.0, 90.0, 95.0],
+        "metadata": {}
+    }
+
+    # Save
+    FeatureCache.save_profiles({"CAND_CACHE_DIRECT": profile})
+
+    # Load
+    loaded = FeatureCache.load_profiles(force=True)
+    assert "CAND_CACHE_DIRECT" in loaded
+    assert loaded["CAND_CACHE_DIRECT"]["skill_score"] == 90.0
+
+    # Status
+    status = FeatureCache.get_status()
+    assert status["is_built"] is True
+    assert status["total_profiles"] == 1
+
+    # Clear
+    FeatureCache.clear()
+    assert len(FeatureCache.load_profiles(force=True)) == 0
+
