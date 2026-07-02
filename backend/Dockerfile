@@ -20,8 +20,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application
 COPY . .
 
-# Expose port
-EXPOSE 8000
+# Note: EXPOSE is intentionally removed. Railway uses the $PORT env var dynamically.
 
 # Start using uvicorn with explicit reverse proxy support
 CMD ["sh", "-c", "uvicorn app.core.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips='*'"]

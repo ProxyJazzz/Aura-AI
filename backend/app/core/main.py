@@ -12,6 +12,7 @@ from contextlib import asynccontextmanager
 from collections.abc import AsyncIterator
 
 from fastapi import FastAPI, HTTPException
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
@@ -109,6 +110,12 @@ def create_app() -> FastAPI:
             "status": "running",
             "version": settings.APP_VERSION
         }
+        
+    @application.get("/api/v1/docs", include_in_schema=False)
+    async def api_v1_docs_redirect():
+        """Redirect legacy docs path to root docs."""
+        return RedirectResponse(url="/docs")
+        
     @application.get("/health", tags=["System"])
     async def root_health():
         """Top-level health check endpoint for monitoring."""
