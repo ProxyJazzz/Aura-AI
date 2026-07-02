@@ -82,7 +82,7 @@ export function UploadCenter() {
         <p className="text-text-muted mt-2">Drag and drop candidate resumes. AURA AI will automatically parse, evaluate, and rank them.</p>
       </div>
 
-      <Card>
+      <Card className="bg-surface/30 backdrop-blur-md border-surface-border/50 shadow-2xl">
         <CardContent className="pt-6">
           <div
             onDragEnter={handleDrag}
@@ -90,8 +90,8 @@ export function UploadCenter() {
             onDragOver={handleDrag}
             onDrop={handleDrop}
             className={`
-              relative border-2 border-dashed rounded-xl p-12 text-center transition-colors
-              ${isDragging ? 'border-accent bg-accent/5' : 'border-surface-border hover:bg-surface/50'}
+              relative border-2 border-dashed rounded-xl p-16 text-center transition-all duration-200
+              ${isDragging ? 'border-accent bg-accent/5 scale-[1.01] shadow-2xl shadow-accent/10' : 'border-surface-border/60 hover:bg-surface-hover/30 hover:border-surface-border'}
             `}
           >
             <input
@@ -115,7 +115,7 @@ export function UploadCenter() {
       </Card>
 
       {files.length > 0 && (
-        <Card>
+        <Card className="bg-surface/30 backdrop-blur-md border-surface-border/50 shadow-2xl">
           <CardHeader>
             <CardTitle>Upload Queue</CardTitle>
             <CardDescription>Real-time processing status of your uploads.</CardDescription>
@@ -126,10 +126,11 @@ export function UploadCenter() {
                 {files.map(file => (
                   <motion.div
                     key={file.id}
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="flex items-center justify-between p-4 rounded-lg bg-surface border border-surface-border"
+                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, height: 0, scale: 0.98 }}
+                    transition={{ duration: 0.2 }}
+                    className="flex items-center justify-between p-4 rounded-xl bg-surface-hover/30 border border-surface-border/50"
                   >
                     <div className="flex items-center space-x-4">
                       <div className="p-2 bg-background rounded-md">

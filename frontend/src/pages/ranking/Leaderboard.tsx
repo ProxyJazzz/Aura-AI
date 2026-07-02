@@ -29,7 +29,7 @@ export function Leaderboard() {
         </Button>
       </div>
 
-      <Card>
+      <Card className="bg-surface/30 backdrop-blur-md border-surface-border/50 shadow-2xl">
         <div className="p-4 bg-surface-hover border-b border-surface-border grid grid-cols-12 gap-4 text-sm font-medium text-text-muted">
           <div className="col-span-1 text-center">Rank</div>
           <div className="col-span-4">Candidate</div>
@@ -80,8 +80,11 @@ export function Leaderboard() {
                     exit={{ height: 0, opacity: 0 }}
                     className="overflow-hidden bg-surface-hover/30"
                   >
-                    <div className="p-6 border-t border-surface-border">
-                      <h4 className="text-sm font-semibold text-text-muted mb-4 uppercase tracking-wider">Dimension Scores</h4>
+                    <div className="p-8 border-t border-surface-border/50 bg-gradient-to-b from-surface-hover/30 to-transparent">
+                      <h4 className="text-sm font-semibold text-text mb-6 flex items-center">
+                        <Trophy size={16} className="text-warning mr-2" />
+                        AI RANKING EXPLAINABILITY
+                      </h4>
                       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                         <div className="p-4 bg-surface rounded-lg border border-surface-border">
                           <p className="text-xs text-text-muted">Semantic Match</p>

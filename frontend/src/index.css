@@ -8,14 +8,17 @@
 
 /* ── Design Tokens ──────────────────────────────────────── */
 @theme {
-  --color-background: #050816;
-  --color-surface: rgba(15, 23, 42, 0.4);
-  --color-surface-hover: rgba(15, 23, 42, 0.6);
-  --color-surface-border: rgba(255, 255, 255, 0.08);
-  --color-primary: #0070F3;
-  --color-primary-hover: #0056B3;
-  --color-accent: #00E5FF;
-  --color-accent-hover: #00B8CC;
+  /* Sprint 0 AURA OS Foundation Tokens */
+  --color-background: #060B17;
+  --color-surface: #0C1525;
+  --color-surface-hover: #111D33; /* Using Elevated Surface for hover/elevated */
+  --color-surface-border: rgba(248, 250, 252, 0.05); /* Very subtle white */
+  --color-primary: #3B82F6;
+  --color-primary-hover: #2563EB;
+  --color-secondary: #38BDF8;
+  --color-secondary-hover: #0EA5E9;
+  --color-accent: #22D3EE;
+  --color-accent-hover: #06B6D4;
   --color-success: #22C55E;
   --color-warning: #F59E0B;
   --color-danger: #EF4444;
@@ -60,17 +63,14 @@ body {
 
 .glass-panel {
   background-color: var(--color-surface);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
   border: 1px solid var(--color-surface-border);
-  border-radius: var(--radius-default);
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  border-radius: var(--radius-small);
   transition: var(--transition-smooth);
 }
 
 .glass-panel:hover {
   background-color: var(--color-surface-hover);
-  border-color: rgba(255, 255, 255, 0.12);
+  border-color: rgba(248, 250, 252, 0.08);
 }
 
 .ambient-glow {

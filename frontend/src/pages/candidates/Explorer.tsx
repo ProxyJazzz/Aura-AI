@@ -19,20 +19,20 @@ export function CandidateExplorer() {
     <div className="h-[calc(100vh-8rem)] flex flex-col md:flex-row gap-6">
       
       {/* Panel 1: List */}
-      <Card className="w-full md:w-1/3 h-full flex flex-col overflow-hidden">
-        <div className="p-4 border-b border-surface-border space-y-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-2.5 text-text-muted" size={18} />
+      <Card className="w-full md:w-1/3 h-full flex flex-col overflow-hidden bg-surface/30 backdrop-blur-md border-surface-border/50 shadow-2xl">
+        <div className="p-5 border-b border-surface-border/30 space-y-4">
+          <div className="relative group">
+            <Search className="absolute left-3 top-2.5 text-text-muted group-focus-within:text-primary transition-colors" size={16} />
             <input 
               type="text" 
               placeholder="Search candidates..." 
-              className="w-full bg-surface-hover rounded-lg pl-10 pr-4 py-2 focus:outline-none focus:ring-2 focus:ring-accent transition-all text-sm border border-transparent focus:border-accent/50"
+              className="w-full bg-surface-hover/50 rounded-lg pl-9 pr-4 py-2 focus:outline-none focus:ring-1 focus:ring-primary/50 transition-all text-sm border border-transparent focus:bg-surface"
             />
           </div>
           <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
-            <Badge variant="secondary" className="cursor-pointer whitespace-nowrap"><Filter size={12} className="mr-1"/> All Roles</Badge>
-            <Badge variant="secondary" className="cursor-pointer whitespace-nowrap">Status</Badge>
-            <Badge variant="secondary" className="cursor-pointer whitespace-nowrap">Risk</Badge>
+            <Badge variant="secondary" className="cursor-pointer whitespace-nowrap bg-surface-hover hover:bg-surface-border font-normal text-xs"><Filter size={12} className="mr-1"/> All Roles</Badge>
+            <Badge variant="secondary" className="cursor-pointer whitespace-nowrap bg-surface-hover hover:bg-surface-border font-normal text-xs">Status</Badge>
+            <Badge variant="secondary" className="cursor-pointer whitespace-nowrap bg-surface-hover hover:bg-surface-border font-normal text-xs">Risk</Badge>
           </div>
         </div>
         
@@ -41,7 +41,7 @@ export function CandidateExplorer() {
             <div 
               key={c.id}
               onClick={() => setSelectedId(c.id)}
-              className={`p-3 rounded-lg cursor-pointer transition-all ${selectedId === c.id ? 'bg-primary/20 border border-primary/50' : 'hover:bg-surface-hover border border-transparent'}`}
+              className={`p-4 rounded-xl cursor-pointer transition-all duration-200 ${selectedId === c.id ? 'bg-primary/10 border-l-2 border-l-primary shadow-inner bg-gradient-to-r from-primary/5 to-transparent' : 'hover:bg-surface-hover/50 border-l-2 border-l-transparent'}`}
             >
               <div className="flex justify-between items-start mb-1">
                 <h4 className="font-semibold">{c.name}</h4>
@@ -64,12 +64,13 @@ export function CandidateExplorer() {
               {/* Panel 2: Profile */}
               <motion.div 
                 key={`profile-${selectedId}`}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.2 }}
                 className="w-full lg:w-1/2 h-full"
               >
-                <Card className="h-full flex flex-col overflow-hidden">
+                <Card className="h-full flex flex-col overflow-hidden bg-surface/30 backdrop-blur-md border-surface-border/50 shadow-2xl">
                   <div className="p-6 border-b border-surface-border">
                     <div className="flex justify-between items-start">
                       <div>
@@ -107,13 +108,13 @@ export function CandidateExplorer() {
               {/* Panel 3: AI Analysis */}
               <motion.div 
                 key={`analysis-${selectedId}`}
-                initial={{ opacity: 0, x: 20 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -20 }}
+                initial={{ opacity: 0, scale: 0.98 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ delay: 0.1, duration: 0.2 }}
                 className="w-full lg:w-1/2 h-full"
-                transition={{ delay: 0.1 }}
               >
-                <Card className="h-full flex flex-col bg-accent/5 border-accent/20 overflow-hidden">
+                <Card className="h-full flex flex-col bg-accent/5 backdrop-blur-md border-accent/20 overflow-hidden shadow-2xl shadow-accent/5">
                   <div className="p-6 border-b border-accent/10 flex items-center justify-between">
                     <h2 className="text-lg font-semibold flex items-center text-accent">
                       <ShieldCheck size={20} className="mr-2" />

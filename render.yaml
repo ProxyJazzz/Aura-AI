@@ -2,8 +2,8 @@ services:
   - type: web
     name: aura-ai-backend
     env: python
-    buildCommand: pip install -r backend/requirements.txt
-    startCommand: cd backend && uvicorn app.core.main:app --host 0.0.0.0 --port 8000
+    buildCommand: pip install -r backend/requirements.txt && python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+    startCommand: cd backend && uvicorn app.core.main:app --host 0.0.0.0 --port $PORT
     envVars:
       - key: APP_ENV
         value: production
@@ -17,3 +17,15 @@ services:
       name: aura-sqlite-storage
       mountPath: /var/data
       sizeGB: 10
+
+  - type: web
+    name: aura-ai-frontend
+    env: static
+    buildCommand: cd frontend && npm install && npm run build
+    staticPublishPath: frontend/dist
+    envVars:
+      - key: VITE_API_BASE_URL
+        fromService:
+          type: web
+          name: aura-ai-backend
+          envVarKey: RENDER_EXTERNAL_URL

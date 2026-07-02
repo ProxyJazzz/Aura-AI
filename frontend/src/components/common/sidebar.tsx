@@ -16,11 +16,11 @@ export function Sidebar() {
       <div className="glass-panel h-full w-full flex flex-col p-4 shadow-2xl">
         
         {/* Logo */}
-        <div className="flex items-center space-x-3 mb-10 px-2 pt-2">
-          <div className="bg-primary/20 p-2 rounded-xl text-primary border border-primary/30">
-            <Command size={24} />
+        <div className="flex items-center space-x-3 mb-8 px-2 pt-2">
+          <div className="bg-primary text-text p-2 rounded-xl border border-primary-hover shadow-lg shadow-primary/20">
+            <Command size={22} />
           </div>
-          <span className="text-xl font-bold tracking-tight">AURA AI</span>
+          <span className="text-xl font-bold tracking-tight text-text">AURA OS</span>
         </div>
 
         {/* Navigation */}
@@ -32,13 +32,17 @@ export function Sidebar() {
               className={({ isActive }) => `
                 flex items-center space-x-3 px-3 py-2.5 rounded-lg transition-all duration-200
                 ${isActive 
-                  ? 'bg-primary/20 text-text font-medium border border-primary/30' 
-                  : 'text-text-muted hover:bg-surface-hover hover:text-text border border-transparent'
+                  ? 'bg-surface-hover text-text font-medium border border-surface-border shadow-md' 
+                  : 'text-text-muted hover:bg-surface hover:text-text border border-transparent'
                 }
               `}
             >
-              <item.icon size={20} className="shrink-0" />
-              <span>{item.name}</span>
+              {({ isActive }) => (
+                <>
+                  <item.icon size={18} className={isActive ? "text-primary" : "opacity-70"} />
+                  <span className="text-sm">{item.name}</span>
+                </>
+              )}
             </NavLink>
           ))}
         </nav>
@@ -59,13 +63,19 @@ export function Sidebar() {
             <span>Settings</span>
           </NavLink>
           
-          <div className="mt-4 p-3 bg-surface rounded-xl border border-surface-border flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-accent flex items-center justify-center text-xs font-bold shadow-lg">
-              JS
+          <div className="mt-4 p-3 bg-surface-hover rounded-xl border border-surface-border flex flex-col gap-3">
+            <div className="flex items-center justify-between text-xs font-medium text-text-muted">
+              <span>Engine Status</span>
+              <span className="flex items-center gap-1 text-success"><div className="w-1.5 h-1.5 rounded-full bg-success animate-pulse"/> Online</span>
             </div>
-            <div className="flex-1 overflow-hidden">
-              <p className="text-sm font-medium truncate">Jane Smith</p>
-              <p className="text-xs text-text-muted truncate">Recruitment Lead</p>
+            <div className="flex items-center space-x-3 pt-2 border-t border-surface-border/50">
+              <div className="w-8 h-8 rounded-full bg-primary/20 text-primary border border-primary/30 flex items-center justify-center text-xs font-bold shadow">
+                JS
+              </div>
+              <div className="flex-1 overflow-hidden">
+                <p className="text-sm font-medium truncate text-text">Jane Smith</p>
+                <p className="text-xs text-text-muted truncate">Recruitment Lead</p>
+              </div>
             </div>
           </div>
         </div>
