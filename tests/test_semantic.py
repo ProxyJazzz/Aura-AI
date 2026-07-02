@@ -333,3 +333,85 @@ def test_semantic_debug_endpoint(mock_embed):
             
     # Clean up test cache files
     client.delete("/api/v1/semantic/cache")
+
+
+def test_embedding_manager_singleton_behavior():
+    """Verify EmbeddingManager lazily loads model and maintains singleton reference."""
+    from app.modules.semantic.embedding_manager import EmbeddingManager
+    m1 = EmbeddingManager.get_model()
+    m2 = EmbeddingManager.get_model()
+    assert m1 is m2
+    assert EmbeddingManager.model_name == "all-MiniLM-L6-v2"
+
+
+def test_candidate_encoder_direct():
+    """Verify CandidateEncoder encodes candidate dictionaries into embeddings."""
+    from app.modules.semantic.candidate_encoder import CandidateEncoder
+    cand = {
+        "current_title": "AI Engineer",
+        "years_of_experience": 3.5,
+        "skills_list": "Python, ML",
+        "highest_education_tier": "tier_1",
+        "raw_json": "{}"
+    }
+    embs = CandidateEncoder.encode_candidates([cand], batch_size=1)
+    assert embs.shape == (1, 384)
+
+
+def test_job_encoder_direct():
+    """Verify JobEncoder encodes structured jobs details into embeddings."""
+    from app.modules.semantic.job_encoder import JobEncoder
+    job = {
+        "title": "Data Scientist",
+        "seniority": "Senior",
+        "industry": "Technology",
+        "required_skills": ["Python", "SQL"],
+        "preferred_skills": ["Spark"],
+        "soft_skills": ["Communication"],
+        "raw_text": "Required Python, SQL. Nice to have Spark."
+    }
+    emb = JobEncoder.encode_job(job)
+    assert emb.shape == (384,)
+
+
+def test_similarity_engine_direct():
+    """Verify SimilarityEngine calculates cosine similarity matches correctly."""
+    from app.modules.semantic.similarity_engine import SimilarityEngine
+    job_emb = np.array([1.0, 0.0], dtype=np.float32)
+    cand_embs = np.array([
+        [1.0, 0.0],
+        [0.0, 1.0]
+    ], dtype=np.float32)
+    cids = ["C1", "C2"]
+    
+    matches = SimilarityEngine.compute_similarity(job_emb, cand_embs, cids)
+    assert len(matches) == 2
+    assert matches[0]["candidate_id"] == "C1"
+    assert matches[0]["score"] == pytest.approx(100.0)
+    assert matches[1]["candidate_id"] == "C2"
+    assert matches[1]["score"] == pytest.approx(0.0)
+
+
+def test_embedding_cache_direct():
+    """Verify EmbeddingCache saves and retrieves active job embeddings successfully."""
+    from app.modules.semantic.embedding_cache import EmbeddingCache
+    job_id = "JOB_CACHE_TEST"
+    job_emb = np.random.randn(384).astype(np.float32)
+    job_emb = job_emb / np.linalg.norm(job_emb)
+    
+    # Save active job
+    EmbeddingCache.save_job_embedding(job_id, job_emb)
+    
+    # Retrieve active job
+    retrieved = EmbeddingCache.get_job_embedding(job_id)
+    assert np.allclose(retrieved, job_emb)
+    
+    # Status check
+    status = EmbeddingCache.get_status()
+    assert status["has_active_job_vector"] is True
+    assert status["active_job_id"] == job_id
+    
+    # Delete job
+    EmbeddingCache.delete_job_cache(job_id)
+    assert EmbeddingCache.get_job_embedding(job_id) is None
+
