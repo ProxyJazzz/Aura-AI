@@ -2,17 +2,19 @@ services:
   - type: web
     name: aura-ai-backend
     env: python
-    buildCommand: pip install -r backend/requirements.txt && python -c "from sentence_transformers import SentenceTransformer; SentenceTransformer('all-MiniLM-L6-v2')"
+    pythonVersion: "3.11"
+    buildCommand: pip install -r backend/requirements.txt
     startCommand: cd backend && uvicorn app.core.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
     envVars:
       - key: APP_ENV
         value: production
+      - key: PYTHONUNBUFFERED
+        value: "1"
       - key: DATABASE_URL
         value: sqlite:////var/data/aura.db
-      - key: TRANSFORMERS_OFFLINE
-        value: "1"
-      - key: HF_HUB_OFFLINE
-        value: "1"
+      - key: HF_HOME
+        value: /var/data/hf_cache
     disk:
       name: aura-sqlite-storage
       mountPath: /var/data
@@ -23,6 +25,7 @@ services:
     env: static
     buildCommand: cd frontend && npm install && npm run build
     staticPublishPath: frontend/dist
+    healthCheckPath: /
     envVars:
       - key: VITE_API_BASE_URL
         fromService:

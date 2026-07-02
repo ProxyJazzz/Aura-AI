@@ -1,6 +1,8 @@
 import threading
 import time
 from typing import Optional, List
+import os
+from pathlib import Path
 import numpy as np
 import torch
 from sentence_transformers import SentenceTransformer
@@ -27,6 +29,17 @@ class EmbeddingManager:
                     start_time = time.perf_counter()
                     logger.info("Initializing EmbeddingManager model '{model}'...", model=cls.model_name)
                     try:
+                        # Smart caching: Enable offline mode dynamically ONLY if the model already exists locally.
+                        # This avoids build-time downloads while also preventing offline crashes.
+                        hf_home = os.environ.get("HF_HOME", str(Path.home() / ".cache" / "huggingface" / "hub"))
+                        model_dir = Path(hf_home) / f"models--{cls.model_name.replace('/', '--')}"
+                        if model_dir.exists():
+                            logger.info("Local model cache detected. Enabling strict offline mode for faster startup.")
+                            os.environ["TRANSFORMERS_OFFLINE"] = "1"
+                            os.environ["HF_HUB_OFFLINE"] = "1"
+                        else:
+                            logger.warning("No local model cache detected! Downloading model now (lazy load).")
+                            
                         device = "cuda" if torch.cuda.is_available() else "cpu"
                         logger.info("EmbeddingManager using device: {device}", device=device)
                         cls._instance = SentenceTransformer(cls.model_name, device=device)

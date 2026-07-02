@@ -6,6 +6,7 @@ All settings are centralized here — no hardcoded values elsewhere in the codeb
 """
 
 from functools import lru_cache
+from typing import Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -52,7 +53,7 @@ class Settings(BaseSettings):
     LOG_RETENTION: str = "30 days"
 
     # ── Database (future) ────────────────────────────────────────
-    DATABASE_URL: str = "sqlite:///./aura.db"
+    DATABASE_URL: Optional[str] = None
 
     # ── Security (future) ────────────────────────────────────────
     ALLOWED_HOSTS: list[str] = ["*"]

@@ -8,16 +8,17 @@ from app.shared.config.settings import settings
 # default setting is "sqlite:///./aura.db"
 def get_db_path() -> Path:
     db_url = settings.DATABASE_URL
-    if db_url.startswith("sqlite:///"):
-        # Remove sqlite:/// prefix
+    
+    # If DATABASE_URL is set (Render Production)
+    if db_url and db_url.startswith("sqlite:///"):
         path_str = db_url.replace("sqlite:///", "")
         path = Path(path_str)
         if not path.is_absolute():
-            # Resolve relative to the backend root directory (contains app/)
             backend_root = Path(__file__).resolve().parent.parent.parent.parent
             return (backend_root / path).absolute()
         return path.absolute()
     
+    # Fallback to local development SQLite (aura.db in backend root)
     backend_root = Path(__file__).resolve().parent.parent.parent.parent
     return (backend_root / "aura.db").absolute()
 
