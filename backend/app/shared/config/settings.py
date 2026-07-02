@@ -55,6 +55,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "sqlite:///./aura.db"
 
     # ── Security (future) ────────────────────────────────────────
+    ALLOWED_HOSTS: list[str] = ["*"]
     SECRET_KEY: str = "aura-dev-secret-key-change-in-production"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7

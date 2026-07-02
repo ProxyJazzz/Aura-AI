@@ -11,14 +11,18 @@ Run with:
 from contextlib import asynccontextmanager
 from collections.abc import AsyncIterator
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.trustedhost import TrustedHostMiddleware
+from fastapi.middleware.gzip import GZipMiddleware
 from loguru import logger
 
 from app.shared.config.settings import settings
 from app.shared.logging import setup_logging
 from app.shared.exceptions import register_exception_handlers
 from app.shared.middleware import RequestLoggingMiddleware
+from app.shared.database import get_db_connection
+from app.modules.health.service import HealthService
 from app.modules.health.api import router as health_router
 from app.modules.candidates import candidates_router, dataset_router
 from app.modules.jobs import jobs_router
@@ -66,11 +70,52 @@ def create_app() -> FastAPI:
         allow_headers=settings.CORS_ALLOW_HEADERS,
     )
 
+    # ── Trusted Hosts ────────────────────────────────────────
+    application.add_middleware(
+        TrustedHostMiddleware,
+        allowed_hosts=settings.ALLOWED_HOSTS,
+    )
+
+    # ── GZip Compression ─────────────────────────────────────
+    application.add_middleware(
+        GZipMiddleware,
+        minimum_size=1000,
+    )
+
     # ── Custom Middleware ────────────────────────────────────
     application.add_middleware(RequestLoggingMiddleware)
 
     # ── Exception Handlers ───────────────────────────────────
     register_exception_handlers(application)
+
+    # ── Root Endpoints ───────────────────────────────────────
+    @application.get("/health", tags=["System"])
+    async def root_health():
+        """Top-level health check endpoint for monitoring."""
+        return HealthService.check()
+
+    @application.get("/ready", tags=["System"])
+    async def root_ready():
+        """Readiness check verifying database connectivity."""
+        try:
+            with get_db_connection() as conn:
+                conn.execute("SELECT 1;")
+            return {"status": "ready"}
+        except Exception as e:
+            logger.error("Readiness check failed: {err}", err=str(e))
+            raise HTTPException(
+                status_code=503,
+                detail=f"Database connection failed: {str(e)}"
+            )
+
+    @application.get("/version", tags=["System"])
+    async def root_version():
+        """Retrieve application version information."""
+        return {
+            "app_name": settings.APP_NAME,
+            "version": settings.APP_VERSION,
+            "environment": settings.APP_ENV
+        }
 
     # ── Routers ──────────────────────────────────────────────
     application.include_router(health_router, prefix=settings.API_V1_PREFIX)
