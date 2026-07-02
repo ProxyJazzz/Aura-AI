@@ -9,7 +9,7 @@ from app.shared.config.settings import settings
 def get_db_path() -> Path:
     db_url = settings.DATABASE_URL
     
-    # If DATABASE_URL is set (Render Production)
+    # If DATABASE_URL is set (Production)
     if db_url and db_url.startswith("sqlite:///"):
         path_str = db_url.replace("sqlite:///", "")
         path = Path(path_str)
