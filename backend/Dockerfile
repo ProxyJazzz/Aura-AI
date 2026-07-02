@@ -23,5 +23,5 @@ COPY . .
 # Expose port
 EXPOSE 8000
 
-# Start using uvicorn
-CMD ["sh", "-c", "uvicorn app.core.main:app --host 0.0.0.0 --port ${PORT:-8000}"]
+# Start using uvicorn with explicit reverse proxy support
+CMD ["sh", "-c", "uvicorn app.core.main:app --host 0.0.0.0 --port ${PORT:-8000} --proxy-headers --forwarded-allow-ips='*'"]

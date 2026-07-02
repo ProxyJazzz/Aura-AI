@@ -61,9 +61,9 @@ def create_app() -> FastAPI:
         title=settings.APP_NAME,
         description=settings.APP_DESCRIPTION,
         version=settings.APP_VERSION,
-        docs_url="/docs" if settings.is_development else None,
-        redoc_url="/redoc" if settings.is_development else None,
-        openapi_url="/openapi.json" if settings.is_development else None,
+        docs_url="/docs",
+        redoc_url="/redoc",
+        openapi_url="/openapi.json",
         lifespan=lifespan,
     )
 
@@ -77,7 +77,7 @@ def create_app() -> FastAPI:
     application.add_middleware(
         CORSMiddleware,
         allow_origins=settings.CORS_ORIGINS,
-        allow_credentials=settings.CORS_ALLOW_CREDENTIALS,
+        allow_credentials=False if "*" in settings.CORS_ORIGINS else settings.CORS_ALLOW_CREDENTIALS,
         allow_methods=settings.CORS_ALLOW_METHODS,
         allow_headers=settings.CORS_ALLOW_HEADERS,
     )
@@ -101,6 +101,14 @@ def create_app() -> FastAPI:
     register_exception_handlers(application)
 
     # ── Root Endpoints ───────────────────────────────────────
+    @application.get("/", tags=["System"])
+    async def root():
+        """Root endpoint."""
+        return {
+            "service": settings.APP_NAME,
+            "status": "running",
+            "version": settings.APP_VERSION
+        }
     @application.get("/health", tags=["System"])
     async def root_health():
         """Top-level health check endpoint for monitoring."""
