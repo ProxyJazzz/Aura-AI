@@ -3,6 +3,7 @@ import sqlite3
 from typing import List, Dict, Any, Optional, Tuple
 from loguru import logger
 from app.shared.database import get_db_connection
+from app.modules.candidates.models import CREATE_CANDIDATES_TABLE, CREATE_STATISTICS_TABLE, INDEX_QUERIES
 
 class CandidateRepository:
     """Repository responsible for database operations on candidates and statistics."""
@@ -11,57 +12,10 @@ class CandidateRepository:
     def create_tables() -> None:
         """Create the candidates and dataset_statistics tables in SQLite."""
         with get_db_connection() as conn:
-            # Create candidates table
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS candidates (
-                    candidate_id TEXT PRIMARY KEY,
-                    is_valid INTEGER NOT NULL,
-                    is_honeypot INTEGER NOT NULL,
-                    validation_error TEXT,
-                    raw_json TEXT NOT NULL,
-                    
-                    -- Extracted Features
-                    anonymized_name TEXT,
-                    location TEXT,
-                    country TEXT,
-                    years_of_experience REAL,
-                    current_title TEXT,
-                    current_company TEXT,
-                    profile_completeness_score REAL,
-                    recruiter_response_rate REAL,
-                    avg_response_time_hours REAL,
-                    open_to_work_flag INTEGER,
-                    skills_list TEXT,
-                    primary_skills_count INTEGER,
-                    has_ai_ml_skills INTEGER,
-                    has_only_consulting_experience INTEGER,
-                    has_worked_in_consulting INTEGER,
-                    num_companies INTEGER,
-                    avg_tenure_months REAL,
-                    highest_education_tier TEXT,
-                    has_masters_or_phd INTEGER,
-                    num_certifications INTEGER,
-                    num_languages INTEGER,
-                    last_active_date TEXT
-                );
-            """)
-            
-            # Create indexes for fast filtering and sorting
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_candidates_is_valid ON candidates(is_valid);")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_candidates_is_honeypot ON candidates(is_honeypot);")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_candidates_experience ON candidates(years_of_experience);")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_candidates_open_to_work ON candidates(open_to_work_flag);")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_candidates_location ON candidates(location);")
-            conn.execute("CREATE INDEX IF NOT EXISTS idx_candidates_skills ON candidates(skills_list);")
-            
-            # Create statistics table
-            conn.execute("""
-                CREATE TABLE IF NOT EXISTS dataset_statistics (
-                    key TEXT PRIMARY KEY,
-                    value TEXT NOT NULL
-                );
-            """)
-            
+            conn.execute(CREATE_CANDIDATES_TABLE)
+            conn.execute(CREATE_STATISTICS_TABLE)
+            for idx_query in INDEX_QUERIES:
+                conn.execute(idx_query)
             logger.info("Database tables and indexes created successfully.")
 
     @staticmethod

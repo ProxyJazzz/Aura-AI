@@ -93,6 +93,75 @@ async def get_candidates_statistics() -> DatasetSummaryResponse:
             detail=f"Error compiling statistics: {str(e)}"
         )
 
+@candidates_router.get(
+    "/search",
+    summary="Search candidates by keywords",
+    description="Matches terms against anonymized name, skills, title, company, or education."
+)
+async def search_candidates(
+    q: str = Query(..., description="Search keyword query"),
+    limit: int = Query(default=20, ge=1, le=100),
+    offset: int = Query(default=0, ge=0)
+):
+    """Search candidates by matching query term against candidate fields."""
+    try:
+        items, total = CandidateService.search_candidates(q, limit, offset)
+        return {
+            "items": items,
+            "total": total,
+            "limit": limit,
+            "offset": offset
+        }
+    except Exception as e:
+        logger.error("Error searching candidates: {e}", e=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Search failed: {str(e)}"
+        )
+
+
+@candidates_router.get(
+    "/status",
+    summary="Get candidates database status",
+    description="Returns status flags indicating if the dataset has been ingested and total record counts."
+)
+async def get_status():
+    """Retrieve the current candidates database status."""
+    try:
+        return CandidateService.get_ingestion_status()
+    except Exception as e:
+        logger.error("Error getting status: {e}", e=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Failed to fetch status: {str(e)}"
+        )
+
+
+@candidates_router.post(
+    "/rebuild",
+    summary="Rebuild candidates database",
+    description="Truncates candidates table, parses the candidates JSONL file, extracts features, and recalculates cache."
+)
+async def rebuild_candidates(filepath: Optional[str] = None):
+    """Trigger rebuild of candidate database from JSONL file."""
+    try:
+        result = CandidateService.rebuild_dataset(filepath)
+        return {
+            "detail": "Candidate database rebuilt successfully.",
+            "summary": result
+        }
+    except FileNotFoundError as e:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=str(e)
+        )
+    except Exception as e:
+        logger.error("Error rebuilding candidates: {e}", e=str(e))
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Rebuild failed: {str(e)}"
+        )
+
 
 @candidates_router.get(
     "/{candidate_id}",

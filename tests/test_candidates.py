@@ -230,3 +230,79 @@ def test_get_candidate_by_id_endpoint():
     # Test invalid candidate ID
     response = client.get("/api/v1/candidates/CAND_9999999")
     assert response.status_code == 404
+
+
+def test_candidates_search_endpoint():
+    """Verify that keyword search endpoint returns results."""
+    # Seed the DB candidate Iraq Vora
+    response = client.get("/api/v1/candidates/search?q=Ira")
+    assert response.status_code == 200
+    data = response.json()
+    assert "items" in data
+    assert "total" in data
+    
+    # Search for non-existent keyword
+    response = client.get("/api/v1/candidates/search?q=NonExistentSkillNameXYZ")
+    assert response.status_code == 200
+    assert response.json()["total"] == 0
+
+
+def test_candidates_status_endpoint():
+    """Verify that candidate status returns database status successfully."""
+    response = client.get("/api/v1/candidates/status")
+    assert response.status_code == 200
+    data = response.json()
+    assert "is_ingested" in data
+    assert "total_candidates" in data
+
+
+def test_candidate_parser_direct():
+    """Verify CandidateParser stream parsing."""
+    from app.modules.candidates.parser import CandidateParser
+    with tempfile.NamedTemporaryFile(mode="w", suffix=".jsonl", delete=False) as temp_file:
+        temp_file.write(json.dumps(SAMPLE_CANDIDATE) + "\n")
+        temp_file_path = Path(temp_file.name)
+        
+    try:
+        records = list(CandidateParser.parse_file(temp_file_path))
+        assert len(records) == 1
+        assert records[0]["candidate_id"] == "CAND_0000001"
+    finally:
+        os.unlink(temp_file.name)
+
+
+def test_candidate_validator_direct():
+    """Verify CandidateValidator schema validation and duplicate checking."""
+    from app.modules.candidates.validator import CandidateValidator
+    validator = CandidateValidator()
+    
+    # First validation succeeds
+    is_valid, err, model = validator.validate_record(SAMPLE_CANDIDATE)
+    assert is_valid is True
+    assert err is None
+    
+    # Duplicate validation fails
+    is_valid, err, model = validator.validate_record(SAMPLE_CANDIDATE)
+    assert is_valid is False
+    assert "Duplicate" in err
+
+
+def test_candidate_feature_extractor_direct():
+    """Verify CandidateFeatureExtractor correctly computes candidate properties."""
+    from app.modules.candidates.feature_extractor import CandidateFeatureExtractor
+    is_valid, _, candidate = CandidateService.validate_record(SAMPLE_CANDIDATE)
+    features = CandidateFeatureExtractor.extract_features(candidate)
+    
+    assert features["candidate_id"] == "CAND_0000001"
+    assert features["skills_list"] == "Python"
+    assert features["has_worked_in_consulting"] == 1
+
+
+def test_candidate_statistics_direct():
+    """Verify CandidateStatistics returns computed metrics structure."""
+    from app.modules.candidates.statistics import CandidateStatistics
+    stats = CandidateStatistics.calculate()
+    assert "total_candidates" in stats
+    assert "valid_candidates" in stats
+    assert "experience_distribution" in stats
+
