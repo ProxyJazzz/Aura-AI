@@ -5,3 +5,5 @@ export { RankingsPage } from "./rankings";
 export { AnalyticsPage } from "./analytics";
 export { SettingsPage } from "./settings";
 export { NotFoundPage } from "./not-found";
+export { UploadPage } from "./upload";
+export { ReportsPage } from "./reports";

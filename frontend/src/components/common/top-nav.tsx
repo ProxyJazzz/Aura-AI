@@ -1,69 +1,35 @@
-/**
- * Top navigation bar.
- * Displays breadcrumb-style page title and user actions.
- */
-
-import { useLocation } from "react-router-dom";
-import { motion } from "framer-motion";
-import { Search, Bell, User } from "lucide-react";
-import { ANIMATION } from "@/lib/constants";
-
-const routeTitles: Record<string, string> = {
-  "/": "Dashboard",
-  "/jobs": "Jobs",
-  "/candidates": "Candidates",
-  "/rankings": "Rankings",
-  "/analytics": "Analytics",
-  "/settings": "Settings",
-};
+import { Bell, Search, Menu } from "lucide-react"
 
 export function TopNav() {
-  const location = useLocation();
-  const pageTitle = routeTitles[location.pathname] ?? "AURA AI";
-
   return (
-    <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-white/[0.06] bg-background/60 px-8 backdrop-blur-xl">
-      {/* Page Title */}
-      <motion.h1
-        key={pageTitle}
-        initial={{ opacity: 0, y: -8 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: ANIMATION.DURATION.DEFAULT }}
-        className="text-lg font-semibold text-text"
-      >
-        {pageTitle}
-      </motion.h1>
+    <header className="h-20 w-full px-8 flex items-center justify-between sticky top-0 z-30 bg-background/80 backdrop-blur-md border-b border-surface-border/50">
+      <div className="flex items-center">
+        {/* Mobile menu trigger - hidden on desktop */}
+        <button className="mr-4 lg:hidden p-2 rounded-lg hover:bg-surface-hover text-text-muted">
+          <Menu size={24} />
+        </button>
+        <h2 className="text-lg font-medium text-text-muted hidden md:block">
+          Good morning, Jane
+        </h2>
+      </div>
 
-      {/* Actions */}
-      <div className="flex items-center gap-2">
-        {/* Search */}
-        <button
-          className="flex h-9 w-9 items-center justify-center rounded-lg text-muted transition-colors hover:bg-white/[0.06] hover:text-text"
-          aria-label="Search"
-        >
-          <Search className="h-[18px] w-[18px]" />
+      <div className="flex items-center space-x-4">
+        {/* Global Search Trigger */}
+        <button className="flex items-center space-x-2 px-3 py-1.5 rounded-lg bg-surface border border-surface-border text-sm text-text-muted hover:bg-surface-hover hover:border-surface-border/80 transition-colors w-64">
+          <Search size={16} />
+          <span className="flex-1 text-left">Search anything...</span>
+          <div className="flex space-x-1">
+            <kbd className="bg-background px-1.5 py-0.5 rounded text-xs">⌘</kbd>
+            <kbd className="bg-background px-1.5 py-0.5 rounded text-xs">K</kbd>
+          </div>
         </button>
 
         {/* Notifications */}
-        <button
-          className="relative flex h-9 w-9 items-center justify-center rounded-lg text-muted transition-colors hover:bg-white/[0.06] hover:text-text"
-          aria-label="Notifications"
-        >
-          <Bell className="h-[18px] w-[18px]" />
-          <span className="absolute right-1.5 top-1.5 h-2 w-2 rounded-full bg-accent" />
-        </button>
-
-        {/* Divider */}
-        <div className="mx-2 h-6 w-px bg-white/[0.06]" />
-
-        {/* User Avatar */}
-        <button
-          className="flex h-8 w-8 items-center justify-center rounded-full bg-gradient-to-br from-primary/80 to-accent/80 text-white transition-shadow hover:shadow-lg hover:shadow-primary/20"
-          aria-label="User menu"
-        >
-          <User className="h-4 w-4" />
+        <button className="p-2 relative rounded-lg hover:bg-surface-hover text-text-muted transition-colors">
+          <Bell size={20} />
+          <span className="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-accent animate-pulse" />
         </button>
       </div>
     </header>
-  );
+  )
 }

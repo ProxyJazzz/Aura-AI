@@ -16,6 +16,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.gzip import GZipMiddleware
 from loguru import logger
+from slowapi import Limiter, _rate_limit_exceeded_handler
+from slowapi.util import get_remote_address
+from slowapi.errors import RateLimitExceeded
+from slowapi.middleware import SlowAPIMiddleware
 
 from app.shared.config.settings import settings
 from app.shared.logging import setup_logging
@@ -29,6 +33,8 @@ from app.modules.jobs import jobs_router
 from app.modules.semantic import semantic_router
 from app.modules.features import features_router
 from app.modules.ranking import ranking_router
+from app.modules.decision import decision_router
+from app.modules.intelligence import intelligence_router
 from app.modules.export import export_router
 
 
@@ -60,6 +66,12 @@ def create_app() -> FastAPI:
         openapi_url="/openapi.json" if settings.is_development else None,
         lifespan=lifespan,
     )
+
+    # ── Rate Limiting ────────────────────────────────────────
+    limiter = Limiter(key_func=get_remote_address, default_limits=["100/minute"])
+    application.state.limiter = limiter
+    application.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
+    application.add_middleware(SlowAPIMiddleware)
 
     # ── CORS ─────────────────────────────────────────────────
     application.add_middleware(
@@ -125,6 +137,8 @@ def create_app() -> FastAPI:
     application.include_router(semantic_router, prefix=settings.API_V1_PREFIX)
     application.include_router(features_router, prefix=settings.API_V1_PREFIX)
     application.include_router(ranking_router, prefix=settings.API_V1_PREFIX)
+    application.include_router(decision_router, prefix=settings.API_V1_PREFIX)
+    application.include_router(intelligence_router, prefix=settings.API_V1_PREFIX)
     application.include_router(export_router, prefix=settings.API_V1_PREFIX)
 
     return application

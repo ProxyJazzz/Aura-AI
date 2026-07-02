@@ -2,7 +2,7 @@ import { motion } from "framer-motion"
 import { Users, FileText, CheckCircle, Activity, ArrowUpRight } from "lucide-react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 
-export function DashboardPage() {
+export function Dashboard() {
   const kpis = [
     { title: "Total Candidates", value: "2,845", trend: "+12%", icon: Users },
     { title: "Recent Uploads", value: "145", trend: "+4%", icon: FileText },
@@ -26,10 +26,10 @@ export function DashboardPage() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: index * 0.1 }}
           >
-            <Card className="hover:ambient-glow cursor-pointer h-full">
+            <Card className="hover:ambient-glow cursor-pointer">
               <CardContent className="p-6">
                 <div className="flex items-center justify-between">
-                  <div className="p-3 bg-primary/20 rounded-xl text-primary">
+                  <div className="p-3 bg-primary/10 rounded-xl text-primary">
                     <kpi.icon size={24} />
                   </div>
                   <div className="flex items-center space-x-1 text-success text-sm font-medium">
@@ -70,7 +70,6 @@ export function DashboardPage() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.5 }}
-          className="h-full"
         >
           <Card className="h-full">
             <CardHeader>

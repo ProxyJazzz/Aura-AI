@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { Sidebar } from "@/components/common/sidebar";
 import { TopNav } from "@/components/common/top-nav";
 import { ErrorBoundary } from "@/components/common/error-boundary";
+import { CommandPalette } from "@/components/common/command-palette";
 import { ANIMATION } from "@/lib/constants";
 
 export function RootLayout() {
@@ -37,6 +38,7 @@ export function RootLayout() {
           </ErrorBoundary>
         </main>
       </div>
+      <CommandPalette />
     </div>
   );
 }
